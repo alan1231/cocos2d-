@@ -41,6 +41,8 @@ export class SingleReel extends Component {
 
     static readonly EVENT_STATUS_CHANGED = 'statusChanged';
 
+    skeleton_Data: sp.SkeletonData;
+
     get status(): ReelScrollStatus {
         return this.showRellStatus;
     }
@@ -60,9 +62,15 @@ export class SingleReel extends Component {
             this.symbolSpriteFrames = newSymbolSpriteFrame;
         });
 
-
-
-
+        const symbol_frameloadurl = 'spine/symbol_frame/symbol_frame_B'; // 相對於 "assets" 文件夾的路徑
+        resources.load(symbol_frameloadurl, sp.SkeletonData, (err, skeletonData) => {
+            if (err) {
+                console.error("Error loading new symbol SkeletonData:", err);
+                return;
+            }
+            this.skeleton_Data = skeletonData;
+        });
+        
         this.childCount = this.node.children.length;
         for (let i = 0; i < this.childCount; i++) {
             this.symbolList.push(this.node.children[i]);
@@ -72,6 +80,11 @@ export class SingleReel extends Component {
         this.status=ReelScrollStatus.FINISH;
 
     }
+
+
+    
+
+    
 
     stopScroll() {
         this.status = ReelScrollStatus.STOP;
@@ -100,26 +113,31 @@ export class SingleReel extends Component {
         spriteSymbolNode.active = false;
 
         let animeNode = symoblNode.getChildByName("anime");
-        let anime = animeNode.getComponent(sp.Skeleton);
         animeNode.active = true;
-        anime.setCompleteListener(()=>{
-            console.log('anime has completed');
-            animeNode.active = false;
 
-            let nweSymbolNode = instantiate(this.symbolList[0]);
-            let newSprite=nweSymbolNode.getChildByName("staticSymbol").getComponent(Sprite);
-            newSprite.spriteFrame=this.symbolSpriteFrames[5];
+        let anime = animeNode.getComponent(sp.Skeleton);
+        // anime.skeletonData = null;
+
+
+        // anime.skeletonData =  this.skeleton_Data;
+
+        
+        anime.setCompleteListener(()=>{
+            animeNode.active = false;
+            let newSymbolNode = instantiate(this.symbolList[0]);
+            let newSprite=newSymbolNode.getChildByName("staticSymbol").getComponent(Sprite);
+            newSprite.spriteFrame=this.symbolSpriteFrames[randomRangeInt(0, this.symbolSpriteFrames.length)];
             this.symbolList.splice(index,1);
             symoblNode.removeFromParent();
             symoblNode=null;
-            nweSymbolNode.position=this.symbolList[0].position.add(v3(0,this.slotHeight,0));
-            this.symbolList.splice(1,0,nweSymbolNode);
-            nweSymbolNode.parent=this.node;
+            newSymbolNode.position=this.symbolList[0].position.add(v3(0,this.slotHeight,0));
+            this.symbolList.splice(1,0,newSymbolNode);
+            newSymbolNode.parent=this.node;
             this.startDrop();
         })
         anime.setAnimation(0, 'out', false);
     }
-
+    
     startDrop(){
         for(let i=0;i<this.symbolList.length;i++){
             tween(this.symbolList[i]).to(0.2,{

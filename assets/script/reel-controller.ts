@@ -22,7 +22,7 @@ export class reel_controller extends Component {
             let arrResult=[
                 [1,2,3,],
                 [3,2,1,],
-                [2,2,1,],
+                [2,2,2,],
             ]
             let delay = 0;
             for (let i = 0; i < this.reelList.length; i++) {
@@ -61,22 +61,21 @@ export class reel_controller extends Component {
     onStatusChanged(status: ReelScrollStatus,strip:number) {
          
         // 在這裡處理狀態變化
-        console.log(`${strip}`,'   component status changed:', status);
         if(status === 4){
             tween(this.reelList[strip].node)
                     .by(0.1, { position: v3(0, -20, 0) })
                     .by(0.2, { position: v3(0, 20, 0) })
                     .call(()=>{
                         this.stopCount ++
-                        console.log(this.stopCount)
                         if (this.stopCount === 3){
-                            console.log('all stop')
-                            console.log(this.reelList.length);
-                            let deleteAry : number[] = [2,2,2];
-                                for (let i = 0; i < deleteAry.length; i ++){
-                                    this.reelList[i].deleteIndex(deleteAry[2]);
-                                    console.log(i);
+                            let deleteAry: number[][] = [[2], [2], [1,2,3]];
+
+                            for (let i = 0; i < deleteAry.length; i++) {
+                                for (let j = 0; j < deleteAry[i].length; j++) {
+                                    this.reelList[i].deleteIndex(deleteAry[i][j]); 
                                 }
+                            }
+                            
                         }
                     })
                     .start();
