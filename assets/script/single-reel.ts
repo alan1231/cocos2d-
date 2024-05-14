@@ -116,10 +116,9 @@ export class SingleReel extends Component {
         animeNode.active = true;
 
         let anime = animeNode.getComponent(sp.Skeleton);
-        // anime.skeletonData = null;
-
-
-        // anime.skeletonData =  this.skeleton_Data;
+        
+        anime.skeletonData = null;
+        anime.skeletonData =  this.skeleton_Data;
 
         
         anime.setCompleteListener(()=>{
